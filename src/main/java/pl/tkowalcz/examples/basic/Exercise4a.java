@@ -12,15 +12,17 @@ import rx.Observable;
 public class Exercise4a {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         // This is just an intro into glorious word of ASCII art!
 
         // Image to ASCII art converter
         ASCII ascii = new ASCII();
 
+        // Try to load Rx logo
         Observable<BufferedImage> usingMainPath = Observable.just(new File("src/main/resources/rx.png"))
                 .map(Exercise4a::loadImage);
 
+        // Alternative path
         Observable<BufferedImage> usingSecondaryPath = Observable.just(new File("rx.png"))
                 .map(Exercise4a::loadImage);
 

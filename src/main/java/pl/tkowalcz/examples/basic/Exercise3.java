@@ -1,7 +1,5 @@
 package pl.tkowalcz.examples.basic;
 
-import java.io.IOException;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import pl.tkowalcz.twitter.StreamingTwitterClient;
@@ -10,7 +8,7 @@ import rx.Observable;
 public class Exercise3 {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         // Main point of this exercise is to use flatMap to
         // convert stream of tweets into stream of words.
 
@@ -20,7 +18,7 @@ public class Exercise3 {
         try (StreamingTwitterClient client = new StreamingTwitterClient()) {
             Gson gson = new GsonBuilder().create();
 
-            // TODO: subscribe to the stream, filter and map it like in Exercise 1a.
+            // TODO: subscribe to the stream, filter, map and print it like in Exercise 1a.
             Observable<String> twitterObservable = client.tweets();
 
             // TODO: Split Tweet.getText() into words and

@@ -15,8 +15,9 @@ public class Exercise4b {
     @SuppressWarnings("ResultOfMethodCallIgnored")
     public static void main(String[] args) throws Exception {
         // This time we will use flatMap to compose asynchronous streams into one.
-        // The task is perform a twitter search for some keywords and
-        // download profile image of each user returned by twitter. Then convert it to ASCII and print.
+        // The task is to perform a twitter search for some keywords and
+        // download profile image of each user returned by twitter.
+        // Then convert it to ASCII and print.
         ASCII ascii = new ASCII();
 
         // CloseableHttpAsyncClient is an observable wrapper over asynchronous http client.
@@ -28,7 +29,7 @@ public class Exercise4b {
             // See ITwitterSearch for its contract.
             RetroTwitter twitter = new RetroTwitter();
 
-            Observable.from(Arrays.asList("JDD", "GeeCON"));
+            Observable.from(Arrays.asList("JDD"));
             // TODO: query 'twitter' object for users
             // TODO: change that stream into stream of image urls
 

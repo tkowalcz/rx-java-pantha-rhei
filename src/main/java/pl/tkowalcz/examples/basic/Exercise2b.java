@@ -1,6 +1,5 @@
 package pl.tkowalcz.examples.basic;
 
-import java.io.IOException;
 import java.util.List;
 
 import com.google.gson.Gson;
@@ -14,7 +13,7 @@ import static java.util.Arrays.asList;
 public class Exercise2b {
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         String tweet1 = "{\"created_at\": \"Fri Oct 10 11:26:33 +0000 2014\", \"text\": \"Charging by induction is like proof by induction. It takes ages and you're never quite sure if it worked.\", \"user\": { \"screen_name\": \"tastapod\", \"location\": \"Agilia\" }}";
         String tweet2 = "{\"created_at\": \"Fri Oct 10 11:26:33 +0000 2014\", \"text\": \"TIL the movie Inception was based on node.js callbacks\", \"user\": { \"screen_name\": \"HackerNewsOnion\", \"location\": \"HackerNews\" }}";
         String tweet3 = "{\"created_at\": \"Fri Oct 10 12:26:33 +0000 2014\", \"text\": \"Shark Facts: Statistically, you are a more likely to be killed by a statistician than by a shark\", \"user\": { \"screen_name\": \"TheTechShark\"}}";
