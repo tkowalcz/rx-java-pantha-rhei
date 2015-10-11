@@ -1,6 +1,7 @@
 package pl.tkowalcz.examples.basic;
 
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.apache.http.impl.nio.client.HttpAsyncClients;
@@ -12,7 +13,7 @@ import rx.apache.http.ObservableHttpResponse;
 
 public class Exercise4b {
 
-    @SuppressWarnings("ResultOfMethodCallIgnored")
+    @SuppressWarnings({"ResultOfMethodCallIgnored", "ArraysAsListWithZeroOrOneArgument"})
     public static void main(String[] args) throws Exception {
         // This time we will use flatMap to compose asynchronous streams into one.
         // The task is to perform a twitter search for some keywords and
@@ -20,24 +21,27 @@ public class Exercise4b {
         // Then convert it to ASCII and print.
         ASCII ascii = new ASCII();
 
-        // CloseableHttpAsyncClient is an observable wrapper over asynchronous http client.
-        // We will use it to download profile images
         try (CloseableHttpAsyncClient httpClient = HttpAsyncClients.createDefault()) {
             httpClient.start();
 
-            // This client allows us to search twitter for users related to given keywords.
-            // See ITwitterSearch for its contract.
             RetroTwitter twitter = new RetroTwitter();
 
-            Observable.from(Arrays.asList("JDD"));
-            // TODO: query 'twitter' object for users
-            // TODO: change that stream into stream of image urls
+            Observable.from(Arrays.asList("JDD"))
+                    .flatMap(twitter::searchUsers)
+                    .flatMap(Observable::from)
+                    .flatMap(user -> ObservableHttp
+                            .createGet(user.getProfileImageUrl(), httpClient)
+                            .toObservable())
+                    .flatMap(ObservableHttpResponse::getContent)
+                    // This will slow down emissions so we can see individual images
+                    // appearing in the console.
+                    .zipWith(Observable.timer(5, 5, TimeUnit.SECONDS), (image, ignore) -> image)
+                    .flatMap(ascii::convert)
+                    .subscribe((x) -> {
+                        System.out.println(x);
+                        System.out.println();
+                    });
 
-            // TODO: download images using helper class ObservableHttp:
-            Observable<ObservableHttpResponse> observable =
-                    ObservableHttp.createGet("uri", httpClient).toObservable();
-
-            // TODO: convert response to bytes using ObservableHttpResponse::getContent
             System.in.read();
         }
     }
