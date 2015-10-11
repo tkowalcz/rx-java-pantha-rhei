@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import pl.tkowalcz.twitter.Tweet;
+import pl.tkowalcz.twitter.Tweets;
 import rx.Observable;
 
 public class Exercise1b {
@@ -46,7 +47,7 @@ public class Exercise1b {
         try {
             return gson.fromJson(tweet, Tweet.class);
         } catch (JsonSyntaxException e) {
-            return new Tweet();
+            return Tweets.emptyInvalidTweet();
         }
     }
 
