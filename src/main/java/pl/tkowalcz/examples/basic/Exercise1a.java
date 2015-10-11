@@ -1,8 +1,13 @@
 package pl.tkowalcz.examples.basic;
 
+import java.util.Arrays;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.util.concurrent.Futures;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import pl.tkowalcz.twitter.Tweet;
+import rx.Observable;
 
 public class Exercise1a {
 
@@ -13,18 +18,23 @@ public class Exercise1a {
         String tweet4 = "{\"delete\":{\"status\":{\"id\":48223552775705600}}}";
         String tweet5 = "{\"created_at\": \"Fri Oct 10 08:26:33 +0000 2014\", \"text\": \"Keep calm and don't block threads\", \"user\": { \"screen_name\": \"tkowalcz\", \"location\": \"JDD\"}}";
 
-        // TODO: have fun with creating your first Observable.
-        // Let's try static methods defined on Observable class
-        // that accept arrays or collections.
+        // Observable sequence from array
+        Observable<String> observableFromArray = Observable.from(new String[]{tweet1, tweet2, tweet3, tweet4, tweet5});
 
-        // TODO: Apply filter and map (e.g. filter out tweet4 that just informs
-        // us about tweet deletion). If you're brave enough try
-        // some other operators.
+        // Observable sequence from Iterable
+        Iterable<String> iterable = ImmutableList.of(tweet1, tweet2, tweet3, tweet4, tweet5);
+        Observable<String> observableFromIterable = Observable.from(iterable);
 
-        // Note: you can map json string containing Tweet to Java object this way:
+        // Observable sequence that emits element when future is completed
+        Observable<String> observableFromFuture = Observable.from(Futures.immediateFuture(tweet1));
+
+        Observable<String> tweets = Observable.from(Arrays.asList(tweet1, tweet2, tweet3, tweet4, tweet5));
+
         Gson gson = new GsonBuilder().create();
-        Tweet tweetDomainObject = gson.fromJson(tweet1, Tweet.class);
-
-        // Remember that subscription starts the stream flowing!
+        tweets
+                .filter(string -> !string.contains("{\"delete\":"))
+                .map(tweet -> gson.fromJson(tweet, Tweet.class))
+                .filter(Tweet::isValidTweet)
+                .subscribe(System.out::println);
     }
 }
