@@ -15,12 +15,20 @@ public class Exercise5 {
 
         // Secondary server that is more healthy
         RetroTwitter fallbackNode = new RetroTwitter()
-                .injectFailureWithProbability(0.1);
+                .injectFailureWithProbability(0.9);
 
         // TODO:
         // 1. Log the error to the console
-        // 2. Retry the call to main node two times
-        // 3. If this fails switch to fallback
+        mainNode.searchUsers("JDD")
+                .doOnError(e -> System.out.println("Exception while accessing twitter using main node: " + e.getMessage()))
+                .retry(2) // 2. Retry the call to main node two times
+                .onErrorResumeNext( // 3. If this fails switch to fallback
+                        fallbackNode.searchUsers("JDD")
+                                .doOnError(e -> System.out.println("Exception while accessing twitter using fallback node: " + e.getMessage()))
+                                .retry(2)
+                )
+                .subscribe(System.out::println, System.out::println);
+
         System.in.read();
     }
 }
