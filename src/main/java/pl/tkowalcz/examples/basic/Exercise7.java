@@ -1,5 +1,7 @@
 package pl.tkowalcz.examples.basic;
 
+import java.io.IOException;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.testng.annotations.Test;
 import rx.Observable;
@@ -8,6 +10,7 @@ import rx.schedulers.TestScheduler;
 import rx.subjects.TestSubject;
 
 import static java.util.Arrays.asList;
+import static org.testng.Assert.assertEquals;
 
 /**
  * Let's test the cache implementation from Exercise6.
@@ -21,20 +24,40 @@ public class Exercise7 {
     @Test
     public void shouldCacheAndReplay() {
         // Given
-        IObservablesCache<String, byte[]> cache = new ImagesCache();
-
-        Observable<byte[]> cachedItem = Observable.just(FOO, BAR, FOOBAR);
-        // TODO: Add to cache
+        byte[] cachedItem = FOO;
+        ImagesCache cache = new ImagesCache();
+        cache.add("Key", cachedItem);
 
         // When
-//        Observable<byte[]> actual = cache.get("Key");
-        Observable<byte[]> actual = cachedItem;
+        Observable<byte[]> actual = cache.get("Key");
 
         // Then
         TestSubscriber<byte[]> subscriber = new TestSubscriber<>();
         actual.subscribe(subscriber);
 
-        subscriber.assertReceivedOnNext(asList(FOO, BAR, FOOBAR));
+        subscriber.assertReceivedOnNext(asList(FOO));
+    }
+
+    @Test
+    public void shouldNotCacheObservableWithError() {
+        // Given
+        IOException exception = new IOException("Broken pipe");
+        Observable<byte[]> cachedItem = Observable.
+                <byte[]>error(exception)
+                .startWith(FOOBAR);
+
+        ExpiringImagesCache cache = new ExpiringImagesCache(key -> cachedItem);
+
+        // When
+        Observable<byte[]> actual = cache.get("Key");
+
+        TestSubscriber<byte[]> subscriber = new TestSubscriber<>();
+        actual.subscribe(subscriber);
+
+        // Then
+        subscriber.assertReceivedOnNext(asList(FOOBAR));
+        subscriber.assertError(exception);
+        assertEquals(cache.getSize(), 0);
     }
 
     // This is not a test of cache. Just another example of testing observables.
