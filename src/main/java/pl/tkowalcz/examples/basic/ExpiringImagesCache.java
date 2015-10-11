@@ -6,10 +6,7 @@ import java.util.function.Function;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import rx.Observable;
-import rx.apache.http.ObservableHttp;
-import rx.apache.http.ObservableHttpResponse;
 
 public class ExpiringImagesCache implements IObservablesCache<String, byte[]> {
 
@@ -17,15 +14,13 @@ public class ExpiringImagesCache implements IObservablesCache<String, byte[]> {
 
     private final LoadingCache<String, Observable<byte[]>> cache;
 
-    public ExpiringImagesCache(CloseableHttpAsyncClient httpClient) {
+    public ExpiringImagesCache(Function<String, Observable<byte[]>> httpClient) {
         Function<String, Observable<byte[]>> searcher = new Function<String, Observable<byte[]>>() {
 
             @Override
             public Observable<byte[]> apply(String url) {
-                return ObservableHttp
-                        .createGet(url, httpClient)
-                        .toObservable()
-                        .flatMap(ObservableHttpResponse::getContent)
+                return httpClient
+                        .apply(url)
                         .doOnError(throwable -> cache.invalidate(url))
                         .cache();
             }
@@ -40,5 +35,9 @@ public class ExpiringImagesCache implements IObservablesCache<String, byte[]> {
     @Override
     public Observable<byte[]> get(String key) {
         return cache.getUnchecked(key);
+    }
+
+    public long getSize() {
+        return cache.size();
     }
 }
