@@ -28,6 +28,7 @@ public class ImagesCache implements IObservablesCache<String, byte[]> {
         cache.put(key, value);
     }
 
+    @Override
     public long getSize() {
         return cache.size();
     }

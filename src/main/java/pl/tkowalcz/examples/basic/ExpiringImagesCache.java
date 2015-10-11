@@ -37,6 +37,7 @@ public class ExpiringImagesCache implements IObservablesCache<String, byte[]> {
         return cache.getUnchecked(key);
     }
 
+    @Override
     public long getSize() {
         return cache.size();
     }
