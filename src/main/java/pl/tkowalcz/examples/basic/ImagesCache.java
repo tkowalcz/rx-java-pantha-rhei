@@ -8,4 +8,9 @@ public class ImagesCache implements IObservablesCache<String, byte[]> {
     public Observable<byte[]> get(String key) {
         return Observable.empty();
     }
+
+    @Override
+    public long getSize() {
+        return 0;
+    }
 }
