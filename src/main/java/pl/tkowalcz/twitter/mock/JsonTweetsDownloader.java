@@ -13,7 +13,7 @@ public class JsonTweetsDownloader {
 
     public static void main(String[] args) throws IOException {
         try (StreamingTwitterClient client = new StreamingTwitterClient()) {
-            File firehose = new File("firehose.jsons");
+            File firehose = new File("src/main/resources/firehose.jsons");
             BufferedWriter writer = new BufferedWriter(new FileWriter(firehose));
 
             CountDownLatch countDownLatch = new CountDownLatch(1);

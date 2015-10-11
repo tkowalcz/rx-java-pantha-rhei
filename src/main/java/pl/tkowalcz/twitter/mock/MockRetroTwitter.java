@@ -18,7 +18,7 @@ public class MockRetroTwitter implements RetroTwitterApi {
     public MockRetroTwitter() {
         ImmutableList.Builder<TwitterUser> builder = ImmutableList.builder();
         try {
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream("users.bin"));
+            ObjectInputStream ois = new ObjectInputStream(new FileInputStream("src/main/resources/users.bin"));
             for (int i = 0; i < 10; i++) {
                 builder.add((TwitterUser) ois.readObject());
             }

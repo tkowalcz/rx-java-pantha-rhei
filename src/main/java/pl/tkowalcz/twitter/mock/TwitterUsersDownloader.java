@@ -16,7 +16,7 @@ public class TwitterUsersDownloader {
     public static void main(String[] args) throws IOException {
         RetroTwitter twitter = new RetroTwitter();
 
-        File users = new File("users.bin");
+        File users = new File("src/main/resources/users.bin");
         ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(users));
 
         CountDownLatch countDownLatch = new CountDownLatch(1);

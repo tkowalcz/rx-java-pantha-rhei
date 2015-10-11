@@ -11,7 +11,7 @@ public class MockTwitterClient implements AutoCloseable {
 
     public Observable<String> tweets() {
         return Observable.<String>create(subscriber -> {
-            try (BufferedReader reader = new BufferedReader(new FileReader("firehose.jsons"))) {
+            try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/firehose.jsons"))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     if (subscriber.isUnsubscribed()) {
