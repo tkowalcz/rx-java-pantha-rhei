@@ -5,4 +5,6 @@ import rx.Observable;
 public interface IObservablesCache<K, V> {
 
     Observable<V> get(K key);
+
+    long getSize();
 }
