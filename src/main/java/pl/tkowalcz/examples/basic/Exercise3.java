@@ -1,8 +1,11 @@
 package pl.tkowalcz.examples.basic;
 
+import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.apache.commons.lang3.tuple.Pair;
 import pl.tkowalcz.twitter.StreamingTwitterClient;
+import pl.tkowalcz.twitter.Tweet;
 import rx.Observable;
 
 public class Exercise3 {
@@ -18,18 +21,44 @@ public class Exercise3 {
         try (StreamingTwitterClient client = new StreamingTwitterClient()) {
             Gson gson = new GsonBuilder().create();
 
-            // TODO: subscribe to the stream, filter, map and print it like in Exercise 1a.
             Observable<String> twitterObservable = client.tweets();
+            twitterObservable
+//                     This code is also present in transformer from filterConvertAndLimit().
+                    .filter(string -> string.contains("created_at"))
+                    .map(string -> gson.fromJson(string, Tweet.class))
+                    .map(Tweet::getText)
+                    .flatMap(text -> Observable.from(text.split("\\s+")))
+                    .take(100)
+                    .subscribe(System.out::println);
 
-            // TODO: Split Tweet.getText() into words and
-            // flatMap that shit (© www.flatmapthatshit.com)
+            twitterObservable
+                    .compose(filterConvertAndLimitTo(100))
+                    .reduce(Maps.<String, Integer>newHashMap(),
+                            (map, string) -> {
+                                map.compute(string, (s, oldCount) -> (oldCount == null ? 0 : oldCount) + 1);
+                                return map;
+                            })
+                    .subscribe(System.out::println);
 
-            // Use something like take(1000) to limit number of tweets we process.
-
-            // Bonus points: how to calculate which word is the most common?
-            // (hint: reduce, scan or groupBy are your friends).
+            twitterObservable
+                    .compose(filterConvertAndLimitTo(100))
+                    .groupBy(word -> word)
+                    .flatMap(Observable::count, (byWord, count) -> Pair.of(byWord.getKey(), count))
+                    .subscribe(System.out::println);
 
             System.in.read();
         }
+    }
+
+    public static Observable.Transformer<String, String> filterConvertAndLimitTo(int limit) {
+        Gson gson = new GsonBuilder().create();
+
+        return observable -> observable
+                .filter(string -> string.contains("created_at"))
+                .map(string -> gson.fromJson(string, Tweet.class))
+                .map(Tweet::getText)
+                .flatMap(text -> Observable.from(text.split("\\s+")))
+                .filter(word -> word.length() <= 3)
+                .take(limit);
     }
 }
