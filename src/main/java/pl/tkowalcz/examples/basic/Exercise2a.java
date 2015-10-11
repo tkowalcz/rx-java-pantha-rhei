@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import pl.tkowalcz.twitter.Tweet;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -19,21 +20,24 @@ public class Exercise2a {
         String tweet4 = "{\"delete\":{\"status\":{\"id\":48223552775705600}}}";
         String tweet5 = "{\"created_at\": \"Fri Oct 10 08:26:33 +0000 2014\", \"text\": \"Keep calm and don't block threads\", \"user\": { \"screen_name\": \"tkowalcz\", \"location\": \"JDD\"}}";
 
-        List<String> twitterStorm = asList(tweet1, tweet2, tweet3, tweet4, tweet5);
         Gson gson = new GsonBuilder().create();
 
-        // And now for something completely different: producing events.
-        // We will act as a producer of streams and try to implement the
-        // 'just' operator ourselves.
-
-        // Note: In Java8 you may nicely collapse the anonymous class definition into lambda.
+        List<String> twitterStorm = asList(tweet1, tweet2, tweet3, tweet4, tweet5);
         Observable<String> tweets = Observable.create(new Observable.OnSubscribe<String>() {
             @Override
             public void call(Subscriber<? super String> subscriber) {
-                // TODO: Emit all the tweets in a loop
-                // Don't forget about onComplete!
+                for (String string : twitterStorm) {
+                    subscriber.onNext(string);
+                }
+                subscriber.onCompleted();
             }
         });
+
+        tweets
+                .filter(string -> !string.contains("{\"delete\":"))
+                .map(tweet -> gson.fromJson(tweet, Tweet.class))
+                .filter(Tweet::isValidTweet)
+                .subscribe(System.out::println);
 
         System.in.read();
     }
