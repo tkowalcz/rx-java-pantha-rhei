@@ -6,12 +6,11 @@ import java.io.ObjectInputStream;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
-import pl.tkowalcz.twitter.RetroTwitterApi;
 import pl.tkowalcz.twitter.TwitterUser;
 import rx.Observable;
 import rx.schedulers.Schedulers;
 
-public class MockRetroTwitter implements RetroTwitterApi {
+public class MockRetroTwitter {
 
     private final List<TwitterUser> users;
 
@@ -29,8 +28,7 @@ public class MockRetroTwitter implements RetroTwitterApi {
         users = builder.build();
     }
 
-    @Override
-    public Observable<List<TwitterUser>> searchForUsers(String prefix) {
+    public Observable<List<TwitterUser>> searchUsers(String prefix) {
         return Observable.just(users).subscribeOn(Schedulers.newThread());
     }
 }
