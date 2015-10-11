@@ -7,10 +7,16 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.sun.management.OperatingSystemMXBean;
 import rx.Observable;
+import rx.subjects.BehaviorSubject;
+import rx.subjects.PublishSubject;
+import rx.subjects.Subject;
 
 public class PerformanceMonitorImpl implements PerformanceMonitor {
 
     private final static OperatingSystemMXBean bean = (com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+
+    private final Subject<Double, Double> cpuUsagePublisher = PublishSubject.create();
+    private final Subject<PerformanceCounter, PerformanceCounter> counterPublisher = BehaviorSubject.create();
 
     private AtomicReference<PerformanceCounter> performanceCounter =
             new AtomicReference<>(new PerformanceCounter());
@@ -21,13 +27,13 @@ public class PerformanceMonitorImpl implements PerformanceMonitor {
             @Override
             public void run() {
                 while (true) {
-                    // TODO: Publish metric value
+                    cpuUsagePublisher.onNext(bean.getSystemCpuLoad());
                     Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
                 }
             }
         };
 
-        cpuUsageUpdateThread.setUncaughtExceptionHandler(null /* TODO  Forward error to listeners */);
+        cpuUsageUpdateThread.setUncaughtExceptionHandler((thread, throwable) -> cpuUsagePublisher.onError(throwable));
         cpuUsageUpdateThread.setDaemon(true);
         cpuUsageUpdateThread.start();
 
@@ -36,25 +42,25 @@ public class PerformanceMonitorImpl implements PerformanceMonitor {
             public void run() {
                 while (true) {
                     PerformanceCounter oldValue = performanceCounter.getAndSet(new PerformanceCounter());
-                    // TODO: Publish counter value
+                    counterPublisher.onNext(oldValue);
                     Uninterruptibles.sleepUninterruptibly(10, TimeUnit.SECONDS);
                 }
             }
         };
 
-        counterPublisherThread.setUncaughtExceptionHandler(null /* TODO  Forward error to listeners */);
+        counterPublisherThread.setUncaughtExceptionHandler((thread, throwable) -> counterPublisher.onError(throwable));
         counterPublisherThread.setDaemon(true);
         counterPublisherThread.start();
     }
 
     @Override
     public Observable<Double> cpuUsage() {
-        return null; // TODO
+        return cpuUsagePublisher.asObservable();
     }
 
     @Override
     public Observable<PerformanceCounter> responseTimes() {
-        return null; // TODO
+        return counterPublisher.asObservable();
     }
 
     @Override

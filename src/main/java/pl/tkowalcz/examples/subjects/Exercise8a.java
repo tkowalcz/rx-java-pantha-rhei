@@ -34,11 +34,14 @@ public class Exercise8a {
         TestObserver<Integer> observer1 = new TestObserver<>();
         TestObserver<Integer> observer2 = new TestObserver<>();
 
-        // TODO: design the test to reveal subjects real nature!
-        //       e.g. call subject.onNext(1) in appropriate places.
+        subject.onNext(1);
+        subject.onNext(1);
         subject.subscribe(observer1);
-        //       subject.onNext(2) or something...
+        subject.onNext(2);
+        subject.onNext(3);
+        subject.onNext(5);
         subject.subscribe(observer2);
+        subject.onNext(8);
 
         subject.onCompleted();
         System.out.println("O1: " + observer1.getOnNextEvents());
