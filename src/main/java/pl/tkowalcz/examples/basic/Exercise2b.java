@@ -26,7 +26,17 @@ public class Exercise2b {
         Observable.create(new Observable.OnSubscribe<String>() {
             @Override
             public void call(Subscriber<? super String> subscriber) {
-                // TODO: Put your OnSubscribe implementation from previous exercise here
+                for (String string : twitterStorm) {
+                    if (subscriber.isUnsubscribed()) {
+                        return;
+                    }
+
+                    subscriber.onNext(string);
+                }
+
+                if (!subscriber.isUnsubscribed()) {
+                    subscriber.onCompleted();
+                }
             }
         })
                 .doOnNext(item -> System.out.println("New item emitted"))
@@ -34,11 +44,6 @@ public class Exercise2b {
                 .filter(tweet -> !tweet.contains("\"delete\":"))
                 .map(tweet -> gson.fromJson(tweet, Tweet.class))
                 .subscribe(System.out::println, Throwable::printStackTrace);
-
-        // Note: take(1) is smart so it will not allow any element past it after the first one.
-        // How many times doOnNext will print "New item emitted"?
-        // Its a waste of resources to continue emit more events if nobody is listening!
-        // How can we modify OnSubscribe implementation to fix that?
 
         System.in.read();
     }
