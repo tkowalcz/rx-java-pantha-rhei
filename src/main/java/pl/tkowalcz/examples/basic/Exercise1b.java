@@ -1,7 +1,12 @@
 package pl.tkowalcz.examples.basic;
 
+import java.util.Arrays;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import pl.tkowalcz.twitter.Tweet;
+import rx.Observable;
 
 public class Exercise1b {
 
@@ -12,19 +17,47 @@ public class Exercise1b {
         String tweet4 = "{\"delete\":{\"status\":{\"id\":48223552775705600}}}";
         String tweet5 = "{\"created_at\": \"Fri Oct 10 08:26:33 +0000 2014\", \"text\": \"Keep calm and don't block threads\", \"user\": { \"screen_name\": \"tkowalcz\", \"location\": \"JDD\"}}";
 
+        Observable<String> tweets = Observable.from(Arrays.asList(tweet1, tweet2, tweet3, tweet4, tweet5));
+
         Gson gson = new GsonBuilder().create();
 
-        // Welcome again. Feel free to copy your observable
-        // with filter and map from previous exercise.
-
-        // This time we have a surprise: tweet with invalid json
-        // What can we do about that?
-
-        // TODO:
         // 1. Let's print the error to the console (look at
         //      different flavors of subscribe())
+        tweets
+                .compose(exercise1a())
+                .subscribe(System.out::println, Throwable::printStackTrace);
+
         // 2. Let's catch the exception and emit empty tweet instead (inside map)
+        tweets
+                .filter(string -> !string.contains("{\"delete\":"))
+                .map(tweet -> safeConvertToTweet(gson, tweet))
+                .filter(Tweet::isValidTweet)
+                .subscribe(System.out::println);
+
         // 3. Let's take() just first tweet so we will not have to
         //      deal with invalid one that comes next.
+        tweets
+                .take(1)
+                .compose(exercise1a())
+                .subscribe(System.out::println);
+    }
+
+    private static Tweet safeConvertToTweet(Gson gson, String tweet) {
+        try {
+            return gson.fromJson(tweet, Tweet.class);
+        } catch (JsonSyntaxException e) {
+            return new Tweet();
+        }
+    }
+
+    private static Observable.Transformer<String, Tweet> exercise1a() {
+        return stringObservable -> {
+            Gson gson = new GsonBuilder().create();
+
+            return stringObservable
+                    .filter(string -> !string.contains("{\"delete\":"))
+                    .map(tweet -> gson.fromJson(tweet, Tweet.class))
+                    .filter(Tweet::isValidTweet);
+        };
     }
 }
