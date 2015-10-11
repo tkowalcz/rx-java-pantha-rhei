@@ -29,6 +29,10 @@ public class MockRetroTwitter {
     }
 
     public Observable<List<TwitterUser>> searchUsers(String prefix) {
-        return Observable.just(users).skip(1).subscribeOn(Schedulers.newThread());
+        return Observable
+                .from(users)
+                .skip(1)
+                .toList()
+                .subscribeOn(Schedulers.newThread());
     }
 }
