@@ -15,6 +15,9 @@ public class Exercise3 {
         // Here we will connect to Twitter and receive "firehose" of tweets.
         // This is a sample of all tweets that are produced in the word
         // in real time.
+
+        // In case of network connectivity problems use MockTwitterClient
+        // instead of StreamingTwitterClient
         try (StreamingTwitterClient client = new StreamingTwitterClient()) {
             Gson gson = new GsonBuilder().create();
 

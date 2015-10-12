@@ -9,6 +9,9 @@ public class Exercise5 {
         // This time we will try to handle communication with an
         // unreliable data source (these days they are all like that...)
 
+        // In case of network connectivity problems use MockRetroTwitter
+        // instead of RetroTwitter
+
         // Main server that has a high failure rate
         RetroTwitter mainNode = new RetroTwitter()
                 .injectFailureWithProbability(0.9);

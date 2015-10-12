@@ -22,11 +22,15 @@ public class Exercise4b {
 
         // CloseableHttpAsyncClient is an observable wrapper over asynchronous http client.
         // We will use it to download profile images
+
         try (CloseableHttpAsyncClient httpClient = HttpAsyncClients.createDefault()) {
             httpClient.start();
 
             // This client allows us to search twitter for users related to given keywords.
             // See ITwitterSearch for its contract.
+
+            // In case of network connectivity problems use MockRetroTwitter
+            // instead of RetroTwitter
             RetroTwitter twitter = new RetroTwitter();
 
             Observable.from(Arrays.asList("JDD"));
